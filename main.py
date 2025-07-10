@@ -429,8 +429,10 @@ async def setup_menu_commands(application):
     ]
     await application.bot.set_my_commands(commands)
 
-# Инициализация приложения
-def create_app():
+if __name__ == '__main__':
+    # Инициализируем базу данных при запуске
+    db.init_db()
+    
     TOKEN = os.getenv('TELEGRAM_TOKEN') or '7799371983:AAEa3w1CGc6BwUcWG2MoVxfL5bJOgg8OhJ4'
     app = ApplicationBuilder().token(TOKEN).build()
 
@@ -461,13 +463,5 @@ def create_app():
     # Установить команды меню при запуске
     app.job_queue.run_once(lambda context: setup_menu_commands(app), when=0)
     
-    return app
-
-# Глобальная переменная для приложения
-app = create_app()
-
-if __name__ == '__main__':
-    # Инициализируем базу данных при запуске
-    db.init_db()
     logger.info("Бот запускается...")
     app.run_polling() 

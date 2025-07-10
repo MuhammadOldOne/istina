@@ -1,5 +1,14 @@
 # Деплой Telegram бота на Render.com
 
+## ⚠️ ВАЖНО: Исправления для Render
+
+Проблема с ошибкой `AttributeError: 'Updater' object has no attribute '_Updater__polling_cleanup_cb'` решена следующими изменениями:
+
+1. **Используется Python 3.11** вместо 3.13
+2. **Обновлены версии библиотек** для совместимости
+3. **Создан `app.py`** который объединяет веб-сервер и бота
+4. **Добавлен health check endpoint** для Render
+
 ## Подготовка к деплою
 
 ### 1. Создайте Git репозиторий
@@ -47,7 +56,7 @@ pip install -r requirements.txt
 
 **Start Command:**
 ```bash
-python main.py
+python app.py
 ```
 
 ### 4. Настройте переменные окружения
@@ -74,10 +83,28 @@ python main.py
 - Откройте вкладку "Logs"
 - Убедитесь, что нет ошибок
 
-### 2. Проверьте бота
+### 2. Проверьте health check
+- Откройте URL вашего сервиса (например: https://your-app.onrender.com)
+- Должно появиться сообщение "Telegram Bot is running!"
+
+### 3. Проверьте бота
 - Найдите ваш бот в Telegram
 - Отправьте команду `/start`
 - Убедитесь, что бот отвечает
+
+## Структура файлов
+
+```
+├── app.py              # Основной файл для Render (веб-сервер + бот)
+├── main.py             # Оригинальный файл бота
+├── db.py               # Работа с базой данных
+├── requirements.txt    # Зависимости Python
+├── render.yaml         # Конфигурация Render
+├── Procfile           # Альтернативная конфигурация
+├── runtime.txt        # Версия Python
+├── health_check.py    # Простой health check
+└── README_DEPLOY.md   # Эти инструкции
+```
 
 ## Важные замечания
 
@@ -96,6 +123,9 @@ python main.py
 - Настройте уведомления о сбоях
 
 ## Troubleshooting
+
+### Ошибка AttributeError с Updater
+**Решение**: Используйте `app.py` вместо `main.py` и убедитесь, что используется Python 3.11
 
 ### Бот не отвечает
 1. Проверьте логи в Render Dashboard
