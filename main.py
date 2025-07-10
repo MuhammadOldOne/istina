@@ -42,6 +42,9 @@ else:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.init_db()
     
+    # Set up menu commands when bot starts
+    await setup_menu_commands(context.application)
+    
     keyboard = [
         [InlineKeyboardButton("Я хочу помочь", callback_data="want_to_help")],
         [InlineKeyboardButton("Мне нужна помощь", callback_data="need_help")]
@@ -448,7 +451,8 @@ if __name__ == '__main__':
             SEARCH_HELPERS: [CallbackQueryHandler(search_helpers)],
             # To be filled with other state handlers
         },
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('cancel', cancel)],
+        per_message=True  # Fix the warning about CallbackQueryHandler tracking
     )
 
     app.add_handler(conv_handler)
@@ -456,8 +460,5 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('show_my_form', show_my_form))
     app.add_handler(CommandHandler('stats', show_stats))
     app.add_handler(CommandHandler('help', help_command))
-
-    # Установить команды меню при запуске
-    app.job_queue.run_once(lambda context: setup_menu_commands(app), when=0)
 
     app.run_polling() 
