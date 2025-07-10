@@ -70,8 +70,7 @@ def run_bot():
         bot_app.add_handler(CommandHandler('stats', show_stats))
         bot_app.add_handler(CommandHandler('help', help_command))
 
-        # Setup menu commands
-        bot_app.job_queue.run_once(lambda context: setup_menu_commands(bot_app), when=0)
+        # Команды меню будут установлены автоматически при первом использовании
         
         logger.info("Starting Telegram bot...")
         bot_app.run_polling()

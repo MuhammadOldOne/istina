@@ -42,6 +42,12 @@ else:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.init_db()
     
+    # Установить команды меню при первом использовании
+    try:
+        await setup_menu_commands(context.application)
+    except Exception as e:
+        logger.warning(f"Не удалось установить команды меню: {e}")
+    
     keyboard = [
         [InlineKeyboardButton("Я хочу помочь", callback_data="want_to_help")],
         [InlineKeyboardButton("Мне нужна помощь", callback_data="need_help")]
@@ -419,15 +425,19 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def setup_menu_commands(application):
     """Установить команды меню бота"""
-    commands = [
-        BotCommand("start", "🚀 Запустить бота"),
-        BotCommand("menu", "📋 Главное меню"),
-        BotCommand("help", "❓ Справка по командам"),
-        BotCommand("show_my_form", "👤 Показать мой профиль"),
-        BotCommand("stats", "📊 Статистика базы данных"),
-        BotCommand("cancel", "❌ Отменить операцию"),
-    ]
-    await application.bot.set_my_commands(commands)
+    try:
+        commands = [
+            BotCommand("start", "🚀 Запустить бота"),
+            BotCommand("menu", "📋 Главное меню"),
+            BotCommand("help", "❓ Справка по командам"),
+            BotCommand("show_my_form", "👤 Показать мой профиль"),
+            BotCommand("stats", "📊 Статистика базы данных"),
+            BotCommand("cancel", "❌ Отменить операцию"),
+        ]
+        await application.bot.set_my_commands(commands)
+        logger.info("Команды меню установлены успешно")
+    except Exception as e:
+        logger.warning(f"Не удалось установить команды меню: {e}")
 
 if __name__ == '__main__':
     # Инициализируем базу данных при запуске
@@ -460,8 +470,8 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', show_stats))
     app.add_handler(CommandHandler('help', help_command))
 
-    # Установить команды меню при запуске
-    app.job_queue.run_once(lambda context: setup_menu_commands(app), when=0)
+    # Команды меню будут установлены автоматически при первом использовании
+    logger.info("Бот запускается...")
     
     logger.info("Бот запускается...")
     app.run_polling() 
