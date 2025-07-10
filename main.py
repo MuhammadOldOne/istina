@@ -530,21 +530,10 @@ async def main():
     try:
         logger.info("Запуск бота...")
         
-        # Удаляем webhook перед запуском polling
-        await app.bot.delete_webhook(drop_pending_updates=True)
-        
-        # Запускаем polling с дополнительными параметрами
-        await app.initialize()
-        await app.start()
-        await app.run_polling(
-            drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES,
-            close_loop=False
-        )
+        # Запускаем polling с простыми параметрами
+        app.run_polling(drop_pending_updates=True)
     except Exception as e:
         logger.error(f"Критическая ошибка при запуске бота: {e}")
-    finally:
-        await app.stop()
 
 if __name__ == '__main__':
     import asyncio
