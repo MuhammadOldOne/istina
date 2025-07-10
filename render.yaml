@@ -2,8 +2,11 @@ services:
   - type: web
     name: telegram-help-bot
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.7 
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false 
