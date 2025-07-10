@@ -219,7 +219,6 @@ async def add_contacts(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Произошла ошибка при сохранении профиля. Попробуйте еще раз.")
         return ConversationHandler.END
 
-
 async def need_help_ask(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         user_response = update.message.text
