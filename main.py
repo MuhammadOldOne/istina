@@ -44,6 +44,16 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     """Обработчик ошибок для бота"""
     logger.error("Exception while handling an update:", exc_info=context.error)
     
+    # Обрабатываем специфические ошибки
+    if context.error:
+        error = context.error
+        if hasattr(error, 'status_code') and error.status_code == 409:
+            logger.warning("Webhook conflict detected. This is normal during startup.")
+            return
+        elif hasattr(error, 'status_code') and error.status_code == 429:
+            logger.warning("Rate limit exceeded. Waiting before retry.")
+            return
+    
     # Отправляем сообщение пользователю об ошибке
     if update and hasattr(update, 'effective_chat'):
         try:
@@ -481,7 +491,8 @@ async def setup_menu_commands(application):
     except Exception as e:
         logger.error(f"Ошибка при установке команд меню: {e}")
 
-if __name__ == '__main__':
+async def main():
+    """Основная функция для запуска бота"""
     TOKEN = os.getenv('TELEGRAM_TOKEN') or '7799371983:AAEa3w1CGc6BwUcWG2MoVxfL5bJOgg8OhJ4'
     
     # Создаем приложение с обработчиком ошибок
@@ -518,6 +529,23 @@ if __name__ == '__main__':
     # Запускаем бота с обработкой ошибок
     try:
         logger.info("Запуск бота...")
-        app.run_polling(drop_pending_updates=True)
+        
+        # Удаляем webhook перед запуском polling
+        await app.bot.delete_webhook(drop_pending_updates=True)
+        
+        # Запускаем polling с дополнительными параметрами
+        await app.initialize()
+        await app.start()
+        await app.run_polling(
+            drop_pending_updates=True,
+            allowed_updates=Update.ALL_TYPES,
+            close_loop=False
+        )
     except Exception as e:
-        logger.error(f"Критическая ошибка при запуске бота: {e}") 
+        logger.error(f"Критическая ошибка при запуске бота: {e}")
+    finally:
+        await app.stop()
+
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main()) 
